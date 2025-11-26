@@ -65,12 +65,82 @@ const insertAfter = (newEl, refEl) => {
   return true;
 };
 
-// Toggle sidebar with animated resize
-const toggleChatSidebar = (show) => {
-  const container = findSidebarContainer();
-  const sidebar = findChatSidebar();
+// Check if container contains navigation bar (should not be collapsed)
+const isNavigationBar = (container) => {
+  // Check if container contains a header with data-tab (navigation bar structure)
+  const navHeader = container.querySelector('header[data-tab]');
+  if (navHeader) {
+    // Navigation bar contains multiple buttons with data-navbar-item="true"
+    const navButtons = navHeader.querySelectorAll('button[data-navbar-item="true"]');
+    // Navigation bar always has at least 3 items: Chats, Status, Channels/Communities, Settings, Profile
+    // If header has nav buttons, this is definitely the navigation bar container
+    if (navButtons.length >= 3) return true;
+    // Even if fewer buttons, if it has the header structure, it's likely the nav bar
+    if (navButtons.length >= 2) return true;
+  }
   
-  if (!container) {
+  // If container contains our toggle button (which is in the nav bar), it's the navigation bar
+  if (container.querySelector('#whatsapp-focus-toggle')) {
+    // Double check: it should also have other nav buttons or the header
+    const navButtons = container.querySelectorAll('button[data-navbar-item="true"]');
+    if (navButtons.length >= 2 || navHeader) return true;
+  }
+  
+  // Navigation bar contains multiple buttons with data-navbar-item="true" directly
+  const navButtons = container.querySelectorAll('button[data-navbar-item="true"]');
+  // If it has 4+ navigation buttons, it's definitely the navigation bar
+  if (navButtons.length >= 4) return true;
+  
+  // Navigation bar contains specific aria-labels for main navigation
+  const navLabels = ['Chats', 'Status', 'Communities', 'Comunidades', 'Channels', 'Canales', 'Settings', 'Profile'];
+  const foundLabels = navLabels.filter(label => 
+    container.querySelector(`button[aria-label="${label}"], button[aria-label*="${label}"]`)
+  );
+  // If it has 4+ navigation labels, it's definitely the navigation bar
+  if (foundLabels.length >= 4) return true;
+  
+  // Check if container is very narrow (navigation bar is vertical and narrow, typically < 150px)
+  const rect = container.getBoundingClientRect();
+  if (rect.width > 0 && rect.width < 150) {
+    // If narrow AND contains header with data-tab, it's the navigation bar
+    if (navHeader) return true;
+    // If narrow AND contains multiple navigation buttons, it's likely the navigation bar
+    if (navButtons.length >= 3) return true;
+  }
+  
+  return false;
+};
+
+// Mark navigation bar containers with a special class for CSS targeting
+const markNavigationBarContainers = () => {
+  const allContainers = document.querySelectorAll('.x18dvir5');
+  allContainers.forEach(container => {
+    if (isNavigationBar(container)) {
+      container.classList.add('whatsapp-focus-navbar');
+      // Also ensure the header has z-index
+      const navHeader = container.querySelector('header[data-tab]');
+      if (navHeader) {
+        navHeader.style.zIndex = '999';
+        navHeader.style.position = 'relative';
+      }
+    } else {
+      container.classList.remove('whatsapp-focus-navbar');
+    }
+  });
+};
+
+// Toggle sidebar with animated resize - applies to .x18dvir5 elements except navigation bar
+const toggleChatSidebar = (show) => {
+  const sidebar = findChatSidebar();
+  const allContainers = document.querySelectorAll('.x18dvir5');
+  
+  // Mark navigation bar containers first
+  markNavigationBarContainers();
+  
+  // Filter out navigation bar containers
+  const containersToCollapse = Array.from(allContainers).filter(container => !isNavigationBar(container));
+  
+  if (containersToCollapse.length === 0) {
     if (sidebar) sidebar.style.display = show ? '' : 'none';
     return !!sidebar;
   }
@@ -80,16 +150,29 @@ const toggleChatSidebar = (show) => {
     if (sidebar) {
       Object.assign(sidebar.style, { opacity: '', visibility: '', pointerEvents: '', display: '' });
     }
+    // Restore filtered .x18dvir5 containers (excluding navigation bar)
     requestAnimationFrame(() => {
-      container.style.flex = '';
-      container.classList.remove('whatsapp-focus-collapsed');
+      containersToCollapse.forEach(container => {
+        container.style.flex = '';
+        container.style.width = '';
+        container.style.minWidth = '';
+        container.style.maxWidth = '';
+        container.classList.remove('whatsapp-focus-collapsed');
+      });
+      // Re-mark navigation bars after restore
+      markNavigationBarContainers();
     });
   } else {
     document.body.classList.add('whatsapp-focus-active');
-    container.style.transition = 'flex 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-    void container.offsetWidth; // Force reflow
-    container.classList.add('whatsapp-focus-collapsed');
-    container.style.flex = '0 0 0%';
+    // Collapse filtered .x18dvir5 containers (excluding navigation bar)
+    containersToCollapse.forEach(container => {
+      container.style.transition = 'flex 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      void container.offsetWidth; // Force reflow
+      container.classList.add('whatsapp-focus-collapsed');
+      container.style.flex = '0 0 0%';
+    });
+    // Ensure navigation bars are marked and visible
+    markNavigationBarContainers();
     setTimeout(() => {
       if (sidebar) {
         Object.assign(sidebar.style, {
@@ -369,9 +452,13 @@ const setupExtension = (retryCount = 0) => {
   toggleChatSidebar(!isFocusModeActive);
   updateButtonState();
   
+  // Mark navigation bar containers on setup
+  markNavigationBarContainers();
+  
   // Force visibility one more time after setup
   requestAnimationFrame(() => {
     ensureButtonPosition();
+    markNavigationBarContainers();
   });
   
   // MutationObserver
@@ -381,9 +468,11 @@ const setupExtension = (retryCount = 0) => {
       createToggleButton();
       toggleChatSidebar(!isFocusModeActive);
       updateButtonState();
+      markNavigationBarContainers();
       return;
     }
     ensureButtonPosition();
+    markNavigationBarContainers();
     toggleChatSidebar(!isFocusModeActive);
   });
   
@@ -397,6 +486,7 @@ const setupExtension = (retryCount = 0) => {
       return;
     }
     ensureButtonPosition();
+    markNavigationBarContainers();
   }, 2000);
 };
 

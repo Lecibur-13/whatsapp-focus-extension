@@ -8,7 +8,38 @@
   transition: background-color 0.2s ease !important;
 }
 
+/* Ensure navigation bar (side navbar) is always visible with high z-index */
+header[data-tab] {
+  z-index: 999 !important;
+  position: relative !important;
+}
+
+/* Ensure navigation bar container is always visible */
+.x18dvir5 header[data-tab] {
+  z-index: 999 !important;
+  position: relative !important;
+}
+
+/* Ensure parent container of navigation bar is visible and not collapsed */
+body.whatsapp-focus-active .x18dvir5:not(.whatsapp-focus-collapsed) header[data-tab] {
+  z-index: 999 !important;
+  position: relative !important;
+}
+
+/* Prevent navigation bar container from being collapsed */
+.x18dvir5 header[data-tab],
+.x18dvir5:has(header[data-tab]) {
+  z-index: 999 !important;
+}
+
+/* Fallback for browsers that don't support :has() - use JavaScript to add class */
+.x18dvir5.whatsapp-focus-navbar {
+  z-index: 999 !important;
+  position: relative !important;
+}
+
 /* Styles for when focus mode is active - Animated collapse with resize */
+/* Applies to ALL .x18dvir5 elements when collapsed */
 body.whatsapp-focus-active .x18dvir5.whatsapp-focus-collapsed {
   flex: 0 0 0% !important;
   width: 0 !important;
@@ -55,7 +86,7 @@ div[role="complementary"]:first-of-type,
   -webkit-backface-visibility: hidden;
 }
 
-/* Class for collapsed state - applied to .x18dvir5 container */
+/* Class for collapsed state - applied to ALL .x18dvir5 containers */
 .x18dvir5.whatsapp-focus-collapsed {
   flex: 0 0 0% !important;
   width: 0 !important;
