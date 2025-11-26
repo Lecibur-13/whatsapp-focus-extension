@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Icon Generator - WhatsApp Focus</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #25D366;
+    }
+    .icon-preview {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .icon-item {
+      text-align: center;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      background: white;
+    }
+    button {
+      background: #25D366;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #20ba5a;
+    }
+    .instructions {
+      background: #e8f5e9;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Icon Generator - WhatsApp Focus</h1>
+    <div class="instructions">
+      <p><strong>Instructions:</strong></p>
+      <ol>
+        <li>Click "Generate Icons" to create the icons</li>
+        <li>Right-click on each canvas and select "Save image as..."</li>
+        <li>Save each icon with the corresponding name (icon16.png, icon48.png, icon128.png)</li>
+        <li>Place the files in the extension's <code>assets/icons/</code> folder</li>
+      </ol>
+    </div>
+    
+    <button onclick="generateIcons()">Regenerate Icons</button>
+    
+    <div class="icon-preview" id="iconPreview"></div>
+  </div>
+
+  <script>
+    let canvases = {};
+    
+    function generateIcons() {
+      const sizes = [16, 48, 128];
+      const container = document.getElementById('iconPreview');
+      container.innerHTML = '';
+      canvases = {};
+      
+      sizes.forEach(size => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        
+        // Fondo verde de WhatsApp con bordes redondeados
+        const radius = size * 0.15;
+        ctx.fillStyle = '#25D366';
+        ctx.beginPath();
+        ctx.moveTo(radius, 0);
+        ctx.lineTo(size - radius, 0);
+        ctx.quadraticCurveTo(size, 0, size, radius);
+        ctx.lineTo(size, size - radius);
+        ctx.quadraticCurveTo(size, size, size - radius, size);
+        ctx.lineTo(radius, size);
+        ctx.quadraticCurveTo(0, size, 0, size - radius);
+        ctx.lineTo(0, radius);
+        ctx.quadraticCurveTo(0, 0, radius, 0);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Dibujar un ojo simple
+        ctx.fillStyle = 'white';
+        const centerX = size / 2;
+        const centerY = size / 2;
+        const eyeSize = size * 0.3;
+        
+        // Círculo del ojo
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, eyeSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Pupila
+        ctx.fillStyle = '#25D366';
+        const pupilSize = eyeSize * 0.5;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, pupilSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Punto brillante
+        ctx.fillStyle = 'white';
+        const highlightSize = pupilSize * 0.3;
+        ctx.beginPath();
+        ctx.arc(centerX - pupilSize * 0.3, centerY - pupilSize * 0.3, highlightSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Guardar canvas
+        canvases[size] = canvas;
+        
+        const div = document.createElement('div');
+        div.className = 'icon-item';
+        div.innerHTML = `
+          <h3>icon${size}.png</h3>
+          <canvas id="canvas${size}" width="${size}" height="${size}"></canvas>
+          <p>${size}x${size} pixels</p>
+          <button onclick="downloadIcon(${size})">Download</button>
+        `;
+        container.appendChild(div);
+        
+        // Copiar el canvas al nuevo canvas en el div
+        const newCanvas = div.querySelector('canvas');
+        const newCtx = newCanvas.getContext('2d');
+        newCtx.drawImage(canvas, 0, 0);
+      });
+    }
+    
+    function downloadIcon(size) {
+      const canvas = canvases[size];
+      if (!canvas) {
+        alert('Error: Canvas not found');
+        return;
+      }
+      
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `icon${size}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    }
+    
+    function downloadAllIcons() {
+      const sizes = [16, 48, 128];
+      sizes.forEach((size, index) => {
+        setTimeout(() => {
+          downloadIcon(size);
+        }, index * 300);
+      });
+    }
+    
+    // Generate automatically on load
+    window.onload = () => {
+      generateIcons();
+      // Add button to download all
+      const container = document.getElementById('iconPreview');
+      const downloadAllBtn = document.createElement('button');
+      downloadAllBtn.textContent = 'Download All Icons';
+      downloadAllBtn.onclick = downloadAllIcons;
+      downloadAllBtn.style.marginTop = '20px';
+      document.querySelector('.container').insertBefore(downloadAllBtn, container);
+    };
+  </script>
+</body>
+</html>
+

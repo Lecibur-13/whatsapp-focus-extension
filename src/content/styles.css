@@ -1,0 +1,107 @@
+/* Additional styles for WhatsApp Focus extension */
+
+/* Styles for the button integrated in the navigation bar */
+#whatsapp-focus-toggle {
+  z-index: 10000 !important;
+  position: relative !important;
+  outline: none !important;
+  transition: background-color 0.2s ease !important;
+}
+
+/* Styles for when focus mode is active - Animated collapse with resize */
+body.whatsapp-focus-active .x18dvir5.whatsapp-focus-collapsed {
+  flex: 0 0 0% !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Hide sidebar content when collapsed */
+body.whatsapp-focus-active #pane-side,
+body.whatsapp-focus-active #side,
+body.whatsapp-focus-active [data-testid="chatlist"],
+body.whatsapp-focus-active div[role="complementary"]:first-of-type {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+/* Smooth animations for sidebar collapse - Main container */
+.x18dvir5 {
+  transition: flex 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              min-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: flex, width;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Animations for sidebar content */
+#pane-side,
+[data-testid="chatlist"],
+div[role="complementary"]:first-of-type,
+#side {
+  transition: opacity 0.3s ease,
+              visibility 0.3s ease !important;
+  will-change: opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Class for collapsed state - applied to .x18dvir5 container */
+.x18dvir5.whatsapp-focus-collapsed {
+  flex: 0 0 0% !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure main chat area expands when sidebar collapses */
+body.whatsapp-focus-active #main,
+body.whatsapp-focus-active [data-testid="main"],
+body.whatsapp-focus-active div[role="main"],
+body.whatsapp-focus-active #side + div,
+body.whatsapp-focus-active #side ~ div,
+body.whatsapp-focus-active ._aigw > div:not(.x18dvir5):not([id*="side"]) {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transition: flex 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Main flex container that adjusts */
+body.whatsapp-focus-active ._aigw {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Main container that expands */
+body.whatsapp-focus-active ._aigw,
+body.whatsapp-focus-active [class*="x9f619"][class*="x1n2onr6"][class*="x5yr21d"] {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Ensure flex container adjusts */
+body.whatsapp-focus-active [class*="x78zum5"] {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Hide sidebar header when collapsed */
+body.whatsapp-focus-active #pane-side header,
+body.whatsapp-focus-active #pane-side > div:first-child {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.2s ease, visibility 0.2s ease !important;
+}
+
