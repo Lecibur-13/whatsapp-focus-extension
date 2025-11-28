@@ -1,6 +1,8 @@
 // Content script for WhatsApp Web
 let isFocusModeActive = false;
+let hideTimeoutId = null;
 let toggleButton = null;
+let indicatorEl = null;
 
 // Storage helpers
 const getState = async () => (await chrome.storage.local.get(['focusMode'])).focusMode || false;
@@ -146,6 +148,10 @@ const toggleChatSidebar = (show) => {
   }
   
   if (show) {
+    if (hideTimeoutId) {
+      clearTimeout(hideTimeoutId);
+      hideTimeoutId = null;
+    }
     document.body.classList.remove('whatsapp-focus-active');
     if (sidebar) {
       Object.assign(sidebar.style, { opacity: '', visibility: '', pointerEvents: '', display: '' });
@@ -173,7 +179,8 @@ const toggleChatSidebar = (show) => {
     });
     // Ensure navigation bars are marked and visible
     markNavigationBarContainers();
-    setTimeout(() => {
+    hideTimeoutId = setTimeout(() => {
+      if (!isFocusModeActive) return;
       if (sidebar) {
         Object.assign(sidebar.style, {
           transition: 'opacity 0.3s ease, visibility 0.3s ease',
@@ -368,6 +375,10 @@ const toggleFocusMode = async () => {
   await setState(isFocusModeActive);
   toggleChatSidebar(!isFocusModeActive);
   updateButtonState();
+  updateIndicator();
+  if (!isFocusModeActive) {
+    verifyVisibilityAndRecover();
+  }
   chrome.runtime.sendMessage({ action: 'focusModeChanged', enabled: isFocusModeActive });
 };
 
@@ -498,6 +509,8 @@ const setupExtension = (retryCount = 0) => {
     new Promise(resolve => setTimeout(resolve, 1000));
   await delay;
   setupExtension();
+  ensureIndicator();
+  updateIndicator();
 })();
 
 // Message listener
@@ -512,7 +525,91 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     setState(isFocusModeActive);
     toggleChatSidebar(!isFocusModeActive);
     updateButtonState();
+    updateIndicator();
+    sendResponse({ success: true });
+  } else if (request.action === 'reset') {
+    resetFocusVisibility();
     sendResponse({ success: true });
   }
   return true;
+});
+
+function resetFocusVisibility() {
+  if (hideTimeoutId) {
+    clearTimeout(hideTimeoutId);
+    hideTimeoutId = null;
+  }
+  isFocusModeActive = false;
+  setState(isFocusModeActive);
+  const sidebar = findChatSidebar();
+  document.body.classList.remove('whatsapp-focus-active');
+  const allContainers = document.querySelectorAll('.x18dvir5');
+  allContainers.forEach(container => {
+    container.classList.remove('whatsapp-focus-collapsed');
+    container.style.flex = '';
+    container.style.width = '';
+    container.style.minWidth = '';
+    container.style.maxWidth = '';
+  });
+  if (sidebar) {
+    Object.assign(sidebar.style, { opacity: '', visibility: '', pointerEvents: '', display: '' });
+  }
+  markNavigationBarContainers();
+  ensureButtonPosition();
+  updateButtonState();
+  updateIndicator();
+}
+
+function verifyVisibilityAndRecover() {
+  const sidebar = findChatSidebar();
+  setTimeout(() => {
+    if (!sidebar) return;
+    const style = window.getComputedStyle(sidebar);
+    const rect = sidebar.getBoundingClientRect();
+    const hidden = style.visibility === 'hidden' || style.opacity === '0' || style.display === 'none' || rect.width === 0;
+    if (hidden) {
+      resetFocusVisibility();
+    }
+  }, 400);
+}
+
+function ensureIndicator() {
+  if (document.getElementById('whatsapp-focus-indicator')) {
+    indicatorEl = document.getElementById('whatsapp-focus-indicator');
+    return;
+  }
+  const el = document.createElement('div');
+  el.id = 'whatsapp-focus-indicator';
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('height', '20');
+  svg.setAttribute('width', '20');
+  const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path1.setAttribute('d', 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z');
+  path1.setAttribute('fill', 'currentColor');
+  const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path2.setAttribute('d', 'M1 1l22 22');
+  path2.setAttribute('stroke', 'currentColor');
+  path2.setAttribute('stroke-width', '2');
+  path2.setAttribute('stroke-linecap', 'round');
+  svg.appendChild(path1);
+  svg.appendChild(path2);
+  el.appendChild(svg);
+  document.body.appendChild(el);
+  indicatorEl = el;
+}
+
+function updateIndicator() {
+  ensureIndicator();
+  if (!indicatorEl) return;
+  indicatorEl.style.display = isFocusModeActive ? 'flex' : 'none';
+}
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes.focusMode) {
+    isFocusModeActive = changes.focusMode.newValue || false;
+    toggleChatSidebar(!isFocusModeActive);
+    updateButtonState();
+    updateIndicator();
+  }
 });

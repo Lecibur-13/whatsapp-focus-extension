@@ -136,3 +136,20 @@ body.whatsapp-focus-active #pane-side > div:first-child {
   transition: opacity 0.2s ease, visibility 0.2s ease !important;
 }
 
+#whatsapp-focus-indicator {
+  position: fixed !important;
+  bottom: 12px !important;
+  left: 12px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 14px !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(37, 211, 102, 0.15) !important;
+  color: #25D366 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+}
+

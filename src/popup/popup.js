@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
   getCurrentState();
   
   document.getElementById('toggleButton').addEventListener('click', toggleFocusMode);
+  document.getElementById('resetButton').addEventListener('click', resetVisibility);
   
   // Update state periodically
   setInterval(getCurrentState, 1000);
@@ -92,4 +93,19 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     updateUI();
   }
 });
+
+async function resetVisibility() {
+  try {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tabs[0] && tabs[0].url && tabs[0].url.includes('web.whatsapp.com')) {
+      await chrome.tabs.sendMessage(tabs[0].id, { action: 'reset' });
+      setTimeout(getCurrentState, 300);
+    } else {
+      alert('Please open WhatsApp Web (https://web.whatsapp.com) to use this extension.');
+    }
+  } catch (error) {
+    console.error('Error resetting visibility:', error);
+    alert('Error resetting visibility. Make sure you are on WhatsApp Web.');
+  }
+}
 
