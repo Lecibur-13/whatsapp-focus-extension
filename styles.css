@@ -1,0 +1,125 @@
+/* Estilos adicionales para la extensión WhatsApp Focus */
+
+/* Estilos para el botón integrado en la barra de navegación */
+#whatsapp-focus-toggle {
+  z-index: 10000 !important;
+  position: relative !important;
+  outline: none !important;
+}
+
+/* Asegurar que el botón se vea como los otros botones de navegación */
+#whatsapp-focus-toggle svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* Estado activo del botón */
+#whatsapp-focus-toggle[aria-pressed="true"] {
+  background-color: rgba(37, 211, 102, 0.15) !important;
+  color: rgba(37, 211, 102, 1) !important;
+}
+
+/* Estado hover */
+#whatsapp-focus-toggle:hover {
+  background-color: rgba(241, 241, 242, 0.1) !important;
+  color: rgba(241, 241, 242, 0.9) !important;
+}
+
+/* Estado hover cuando está activo */
+#whatsapp-focus-toggle[aria-pressed="true"]:hover {
+  background-color: rgba(37, 211, 102, 0.25) !important;
+}
+
+/* Estilos para cuando el modo focus está activo - Colapso animado */
+body.whatsapp-focus-active #pane-side,
+body.whatsapp-focus-active #side,
+body.whatsapp-focus-active [data-testid="chatlist"],
+body.whatsapp-focus-active div[role="complementary"]:first-of-type {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  transform: translateX(-100%) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 0 !important;
+}
+
+/* Animaciones suaves para el colapso del sidebar */
+#pane-side,
+[data-testid="chatlist"],
+div[role="complementary"]:first-of-type,
+#side {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              min-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease,
+              visibility 0.3s ease,
+              margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: width, transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Clase para el estado colapsado */
+.whatsapp-focus-collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  transform: translateX(-100%) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Asegurar que el área de chat principal se expanda cuando el sidebar se colapsa */
+body.whatsapp-focus-active #main,
+body.whatsapp-focus-active [data-testid="main"],
+body.whatsapp-focus-active div[role="main"],
+body.whatsapp-focus-active #side + div,
+body.whatsapp-focus-active #side ~ div,
+body.whatsapp-focus-active ._aigw > div:not(#side):not([id*="side"]) {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  flex: 1 1 100% !important;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              flex 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Contenedor principal flex que se ajusta */
+body.whatsapp-focus-active ._aigw {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Contenedor principal que se expande */
+body.whatsapp-focus-active ._aigw,
+body.whatsapp-focus-active [class*="x9f619"][class*="x1n2onr6"][class*="x5yr21d"] {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Asegurar que el contenedor flex se ajuste */
+body.whatsapp-focus-active [class*="x78zum5"] {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Ocultar el header del sidebar cuando está colapsado */
+body.whatsapp-focus-active #pane-side header,
+body.whatsapp-focus-active #pane-side > div:first-child {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.2s ease, visibility 0.2s ease !important;
+}
+
+
+
+

@@ -1,7 +1,7 @@
 {
   "name": "whatsapp-focus-extension",
   "version": "1.0.0",
-  "description": "Chrome extension to hide the chat list in WhatsApp Web",
+  "description": "A Chrome extension that enhances your WhatsApp Web experience by hiding the chat list sidebar, allowing you to focus on your current conversation without distractions",
   "scripts": {
     "generate-icons": "node generate-icons.js"
   },
@@ -17,4 +17,7 @@
     "sharp": "^0.33.0"
   }
 }
+
+
+
 

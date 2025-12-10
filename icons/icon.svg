@@ -1,0 +1,13 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo verde de WhatsApp -->
+  <rect width="128" height="128" fill="#25D366" rx="20"/>
+  
+  <!-- Ojo -->
+  <circle cx="64" cy="64" r="40" fill="white"/>
+  <circle cx="64" cy="64" r="20" fill="#25D366"/>
+  <circle cx="58" cy="58" r="6" fill="white"/>
+</svg>
+
+
+
+
